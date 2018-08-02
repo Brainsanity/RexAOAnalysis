@@ -1042,8 +1042,10 @@ classdef ToolKit
 		function patch = Gabor( waveLength, orientation, pahse, sigma, width, window )
 			%% orientation:		counterclockwise; vertical gabor at 0; degrees
 			%  pahse:			degrees
-			%  patch:			1st dimension: vertical(y); 2nd dimension: horizontal(x)
+			%  sigma:			sigma of the Gaussian filter
+			%  width:			width of the patch in pixels
 			%  window:			'gaussian' (gabor) or not (grating)
+			%  patch:			1st dimension: vertical(y); 2nd dimension: horizontal(x)
 			if( nargin() < 6 )
 				window = 'gaussian';
 			end
@@ -1059,6 +1061,7 @@ classdef ToolKit
 			end
 			patch = patch / max(patch(:));
 		end
+
 	end
 
 end
