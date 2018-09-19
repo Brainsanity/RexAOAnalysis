@@ -1039,13 +1039,17 @@ classdef ToolKit
 		end
 
 
-		function patch = Gabor( waveLength, orientation, pahse, sigma, width, window )
+		function patch = Gabor( waveLength, orientation, pahse, width, window, sigma )
 			%% orientation:		counterclockwise; vertical gabor at 0; degrees
 			%  pahse:			degrees
-			%  patch:			1st dimension: vertical(y); 2nd dimension: horizontal(x)
+			%  width:			width of the patch in pixels
 			%  window:			'gaussian' (gabor) or not (grating)
-			if( nargin() < 6 )
-				window = 'gaussian';
+			%  sigma:			sigma of the Gaussian filter
+			%  patch:			1st dimension: vertical(y); 2nd dimension: horizontal(x)
+			if( nargin() < 5 )
+				window = 'grating';
+			elseif( nargin() < 6 )
+				sigma = 1;
 			end
 			
 			[ x, y ] = meshgrid( (1:width) - (1+width)/2.0, (1:width) - (1+width)/2.0 );
@@ -1059,6 +1063,7 @@ classdef ToolKit
 			end
 			patch = patch / max(patch(:));
 		end
+<<<<<<< HEAD
 		
 
 		function BulletComments( fname, bgColor )
@@ -1127,6 +1132,9 @@ classdef ToolKit
 			end
 
 		end
+=======
+
+>>>>>>> 8bf5033e928872babd5cf7869cf641ddcfaab6c2
 	end
 
 end
