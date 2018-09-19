@@ -1059,6 +1059,74 @@ classdef ToolKit
 			end
 			patch = patch / max(patch(:));
 		end
+		
+
+		function BulletComments( fname, bgColor )
+			if( nargin() < 2 ) bgColor = 'w'; end
+
+			bullets(3) = struct( 'Txt', 'text', 'Height', 0.5, 'FontSize', 24, 'Color', {'k'}, 'Delay', 0, 'Speed', 1, 'Location', 0 );
+			
+			bullets(1).Txt = 'How to do Decoding???';
+			bullets(1).Height = 0.1;	% whole image height of 1
+			bullets(1).FontSize = 20;
+			bullets(1).Color = {'k'};
+			bullets(1).Delay = 0;
+			bullets(1).Speed = 0.07;	% imageWidth/s
+			bullets(1).Location = 0;
+
+			bullets(2).Txt = 'Oh, try a bunch of EEG voxels';
+			bullets(2).Height = 0.3;	% whole image height of 1
+			bullets(2).FontSize = 20;
+			bullets(2).Color = {'g'};
+			bullets(2).Delay = 0.3;
+			bullets(2).Speed = 0.2;	% imageWidth/s
+			bullets(2).Location = 0;
+
+			bullets(3).Txt = 'Use a population of fMRI voxels!!!';
+			bullets(3).Height = 0.5;	% whole image height of 1
+			bullets(3).FontSize = 20;
+			bullets(3).Color = {'c'};
+			bullets(3).Delay = 0.5;
+			bullets(3).Speed = 0.1;	% imageWidth/s
+			bullets(3).Location = 0;
+
+			bullets(4).Txt = 'Population of neurons of course!!!';
+			bullets(4).Height = 0.7;	% whole image height of 1
+			bullets(4).FontSize = 20;
+			bullets(4).Color = {'b'};
+			bullets(4).Delay = 0.7;
+			bullets(4).Speed = 0.15;	% imageWidth/s
+			bullets(4).Location = 0;
+
+			bullets(5).Txt = 'Anyone knows the big boss behind? :(';
+			bullets(5).Height = 0.9;	% whole image height of 1
+			bullets(5).FontSize = 20;
+			bullets(5).Color = {'r'};
+			bullets(5).Delay = 0.75;
+			bullets(5).Speed = 0.09;	% imageWidth/s
+			bullets(5).Location = 0;
+
+			set( figure, 'outerposition', [0 300 900 250], 'NumberTitle', 'off', 'name', fname, 'color', bgColor );
+			axes( 'position', [0 0 1 1], 'XDir', 'reverse', 'YDir', 'reverse', 'visible', 'off' );
+
+			T = max( [bullets.Delay] + 0.7 ./ [bullets.Speed] );
+			frameRate = 12;
+			for( iFrame = 1 : round( frameRate * T ) )
+				cla;
+				for( iBullet = 1 : size(bullets,2) )
+					bullets(iBullet).Location = ( iFrame/frameRate - bullets(iBullet).Delay ) * bullets(iBullet).Speed;
+					text( bullets(iBullet).Location, bullets(iBullet).Height, bullets(iBullet).Txt, 'color', bullets(iBullet).Color{1}, 'FontSize', bullets(iBullet).FontSize );
+				end
+
+				[img, map] = rgb2ind( frame2im( getframe(gcf) ), 20 );
+				if( iFrame == 1 )
+					imwrite( img, map, [fname, '.gif'], 'gif', 'LoopCount', inf, 'DelayTime', 1/frameRate );
+				else
+					imwrite( img, map, [fname, '.gif'], 'gif', 'WriteMode', 'append', 'DelayTime', 1/frameRate );
+				end
+			end
+
+		end
 	end
 
 end

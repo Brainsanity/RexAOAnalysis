@@ -3052,7 +3052,7 @@ classdef MyMethods < handle
 				breaks.peakSpeed = [];
 				breaks.angle = [];
 				cBreaks = 0;
-				for( i = 1 : size( subfolders, 1 ) )
+				for( i = 1 : size( refinedFolders, 1 ) )
 					ba = BlocksAnalyzer( 'RexBlock', ToolKit.ListMatFiles( ToolKit.RMEndSpaces( refinedFolders(i,:) ) ) );%, DATA_FIELD_FLAG.SACCADES + DATA_FIELD_FLAG.RESPONSE_INDEX );
 					fixational.amplitude( end + ba.nTrials * 4 ) = 0;
 					fixational.peakSpeed( end + ba.nTrials * 4 ) = 0;
