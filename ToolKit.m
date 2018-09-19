@@ -1063,7 +1063,6 @@ classdef ToolKit
 			end
 			patch = patch / max(patch(:));
 		end
-<<<<<<< HEAD
 		
 
 		function BulletComments( fname, bgColor )
@@ -1132,9 +1131,6 @@ classdef ToolKit
 			end
 
 		end
-=======
-
->>>>>>> 8bf5033e928872babd5cf7869cf641ddcfaab6c2
 	end
 
 end
