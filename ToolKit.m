@@ -1063,6 +1063,37 @@ classdef ToolKit
 			end
 			patch = patch / max(patch(:));
 		end
+
+
+		function img = Arcs( innerR, outerR, breakWidth, isPlot, isNewFigure )
+			%% output:
+			%	 img:				normalized to 1
+			%  input:
+			%    innerR:			radius of inner edge
+			%    outerR:			radius of outer edge
+			%    breakWidth:		angle of breaks between arcs (degrees)
+			%    isPlot:			whether plot img; false by default
+			%    isNewFigure:		whether plot on a new figure; true by default
+			if( nargin() < 4 ) isPlot = false; end
+			if( nargin() < 5 ) isNewFigure = true; end
+
+			img = zeros( outerR*2+1, outerR*2+1 );
+			angBound = [breakWidth/2, 90-breakWidth/2]' + (-2:1)*90
+			for( x = -outerR : outerR )
+				for( y = -outerR : outerR )
+					ang = angle( y + i*x ) / pi * 180;
+					if( any( angBound(1,:) <= ang & ang <= angBound(2,:) ) )
+						img( x+outerR+1, y+outerR+1 ) = normpdf( norm( [x,y] ), (innerR+outerR)/2, (outerR - innerR)/4 );
+					end
+				end
+			end
+			img = img / max(img(:));
+
+			if( isPlot )
+				if(isNewFigure) figure; end
+				imshow(img);
+			end
+		end
 		
 
 		function BulletComments( fname, bgColor )
