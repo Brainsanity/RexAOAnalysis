@@ -1430,7 +1430,7 @@ classdef MyMethods < handle
             nTrials = MyMethods.CountNTrials( folder, task );
             left = [nTrials.left];
             right = [nTrials.right];
-            nTrials = size([left.correct],2) + size([right.correct],2);
+            nTrials = sum([left.correct]) + sum([right.correct]);
 
             switch( lower(task) )
 				case 'scis'
