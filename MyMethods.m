@@ -1442,10 +1442,10 @@ classdef MyMethods < handle
             t_step = 0.001;
             tTicks = min(t) : t_step : max(t);
             rate = ToolKit.Hist( t, [ tTicks - t_step/2, tTicks(end) + t_step/2 ], false );
-            SIGMA = 5;
+            SIGMA = 100;%5;
             func = @(x) exp( -.5*(x/SIGMA).^2 ) / ( sqrt(2*pi)*SIGMA );
-            % rate = conv( rate, func(-20:20)/0.001/nTrials, 'same' );
-            rate = conv( rate, ones(1,5)/5/0.001/nTrials, 'same' );		% smooth the rate curve
+            rate = conv( rate, func(-20:20)/0.001/nTrials, 'same' );
+            % rate = conv( rate, ones(1,5)/5/0.001/nTrials, 'same' );		% smooth the rate curve
             if( isDraw )
 	            set( figure, 'NumberTitle', 'off', 'name', sprintf( '[%s] [%s] Microsaccades Rate', subject, task ) ); hold on;
 	            FONTSIZE = 36;
@@ -3249,7 +3249,10 @@ classdef MyMethods < handle
 		 	ang_step = 3;
 		 	tStep = 0.05;
 		 	ck = ones(1,5)/5;	% convolution kernal
-		 	Handles = zeros(1,9);
+
+		 	N = 2;	% separate AfterCue period to 2 periods, 200ms each
+		 	T = 0.2;	% 200ms
+		 	Handles = zeros(1,2*N+1);
 
 		 	data = ToolKit.Hist( [ dataBefore.angle ], -181:2:181, false );
 		 	data = conv( [ data( end + 1 - (size(ck,2)-1) / 2 : end ), data, data( 1 : (size(ck,2)-1) / 2 ) ], ck, 'same' );
@@ -3259,17 +3262,18 @@ classdef MyMethods < handle
 		 	hold on;
 
 		 	for( i = 1 : 2 )
-		 		for( j = 4 : -1 : 1 )	% every 50ms, 400ms in total
-		 			timeIndex = tStart + 0.100*(j-1) <= [dataAfter.latency] - [dataAfter.tCue] & [dataAfter.latency] - [dataAfter.tCue] < tStart + 0.100*j;
+		 		for( j = N : -1 : 1 )	% every 100ms, 400ms in total
+		 			timeIndex = tStart + T*(j-1) <= [dataAfter.latency] - [dataAfter.tCue] & [dataAfter.latency] - [dataAfter.tCue] < tStart + T*j;
 			 		data = ToolKit.Hist( [ dataAfter( indexAfter(i,:) & timeIndex ).angle ], -181:2:181, false );
 			 		data = conv( [ data( end + 1 - (size(ck,2)-1) / 2 : end ), data, data( 1 : (size(ck,2)-1) / 2 ) ], ck, 'same' );
 			 		data = data( (size(ck,2)-1) / 2 + 1 : end - (size(ck,2)-1) / 2 );
-			 		Handles( (i-1)*4 + j + 1 ) = polar( (-180:2:180)/180*pi, data/sum(data) );
-			 		set( Handles( (i-1)*4 + j + 1 ), 'color', colors(i,:) * (j/8+0.5) + 1 * ~colors(i,:) * (4-j)/8, 'LineWidth', 3 );
+			 		Handles( (i-1)*N + j + 1 ) = polar( (-180:2:180)/180*pi, data/sum(data) );
+			 		% set( Handles( (i-1)*N + j + 1 ), 'color', colors(i,:) * (j/8+0.5) + 1 * ~colors(i,:) * (4-j)/8, 'LineWidth', 3 );
+			 		set( Handles( (i-1)*N + j + 1 ), 'color', colors(i,:) * ((j-1)/(N-1)*0.8+0.2) + 1 * ~colors(i,:) * (N-j)/(N-1)*0.1, 'LineWidth', 3 );
 			 		if( i == 1 )	% cue left
-			 			set( Handles( (i-1)*4 + j + 1 ), 'DisplayName', sprintf( 'Cue Left %dth 100ms', j ) );
+			 			set( Handles( (i-1)*N + j + 1 ), 'DisplayName', sprintf( 'Cue Left %dth %dms', j, T*1000 ) );
 			 		else 			% cue right
-			 			set( Handles( (i-1)*4 + j + 1 ), 'DisplayName', sprintf( 'Cue Right %dth 100ms', j ) );
+			 			set( Handles( (i-1)*N + j + 1 ), 'DisplayName', sprintf( 'Cue Right %dth %dms', j, T*1000 ) );
 			 		end
 			 		hold on;
 			 	end

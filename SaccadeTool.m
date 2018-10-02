@@ -67,7 +67,7 @@ classdef SaccadeTool < handle
 			end
 
 			%% deal with high frequency noise with iterated convolution of averaging
-			convStep = max( 0.011 * samRate, 1 );
+			convStep = ceil( max( 0.011 * samRate, 1 ) );
 			convFunctor = ones(1,convStep)./convStep;
 			eyex = eyeTrace(1,:);
 			eyey = eyeTrace(2,:);
@@ -104,7 +104,7 @@ classdef SaccadeTool < handle
 
 			%% calculate velocity
 			velocity = gradient( smoothEyeTrace, 1/samRate );	% 1/samRate specifies the space between points
-			convStep = max( 0.005 * samRate, 1 );
+			convStep = ceil( max( 0.005 * samRate, 1 ) );
 			convFunctor = ones(1,convStep)./convStep;
 			for i=1:10
 				velocity(1,:) = conv( velocity(1,:), convFunctor, 'same' ); % 'same' to get the central part
@@ -115,7 +115,7 @@ classdef SaccadeTool < handle
 			%% calculate acceleration
 			acceleration = gradient( velocity, 1/samRate );
 			aclFromSpeed = gradient( polVel.speed, 1/samRate );
-			convStep = max( 0.005 * samRate, 1 );
+			convStep = ceil( max( 0.005 * samRate, 1 ) );
 			convFunctor = ones(1,convStep)./convStep;
 			for i=1:10
 				acceleration(1,:) = conv( acceleration(1,:), convFunctor, 'same' );
@@ -222,7 +222,7 @@ classdef SaccadeTool < handle
 
 			%% refine start positions and end positions	
 			velocity = gradient( eyeTrace, 1/samRate );	% 1/samRate specifies the space between points
-			convStep = max( 0.005 * samRate, 1 );
+			convStep = ceil( max( 0.005 * samRate, 1 ) );
 			convFunctor = ones(1,convStep)./convStep;
 			for i = 1 : 5
 				velocity(1,:) = conv( velocity(1,:), convFunctor, 'same' ); % 'same' to get the central part
