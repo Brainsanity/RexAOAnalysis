@@ -757,6 +757,7 @@ classdef ToolKit
 					txt = '*';
 				else
 					txt = 'ns';
+				end
 			end
 			text( double(x1+x2)/2, double(y2), txt, 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
 
