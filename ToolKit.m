@@ -712,6 +712,8 @@ classdef ToolKit
 			%					it will be 10% of the height of the current axis if not given
 			%		isShowValues:	true means showing the p-value exactly as it is; false means showing with stars. By default, it is false
 
+			if( nargin() < 5 || isempty(isShowValues) ) isShowValues = false; end
+
 			if( loc1(1) > loc2(1) )
 				x1 = loc2(1);
 				x2 = loc1(1);
@@ -743,7 +745,20 @@ classdef ToolKit
 			y2 = y1 + y2 * hAxis * .02;
 
 			plot( [ x1, x1, x2, x2 ], [ y1, y2, y2, y1 ], 'k' );
-			text( double(x1+x2)/2, double(y2), sprintf( '%.4f', pVal ), 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
+			
+			if( isShowValues )
+				txt = sprintf( '%.4f', pVal );
+			else
+				if(pVal < 0.001)
+					txt = '***';
+				elseif(pVal < 0.01)
+					txt = '**';
+				elseif(pVal < 0.05)
+					txt = '*';
+				else
+					txt = 'ns';
+			end
+			text( double(x1+x2)/2, double(y2), txt, 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
 
 		end
 
