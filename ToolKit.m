@@ -724,11 +724,11 @@ classdef ToolKit
 
 			if( loc1(2) >= 0 || loc2(2) >=0 )
 				y1 = max( [ loc1(2), loc2(2) ] );
-				y2 = 1;
+				y = 1;
 				vAlign = 'bottom';
 			else
 				y1 = min( [ loc1(2), loc2(2) ] );
-				y2 = -1;
+				y = -1;
 				vAlign = 'top';
 			end
 
@@ -741,8 +741,8 @@ classdef ToolKit
 				hDist = hAxis * hDist;
 			end
 
-			y1 = y1 + y2*hDist;
-			y2 = y1 + y2 * hAxis * .02;
+			y1 = y1 + y*hDist;
+			y2 = y1 + y * hAxis * .02;
 
 			plot( [ x1, x1, x2, x2 ], [ y1, y2, y2, y1 ], 'k' );
 			
@@ -759,7 +759,11 @@ classdef ToolKit
 					txt = 'ns';
 				end
 			end
-			text( double(x1+x2)/2, double(y2), txt, 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
+			if( y == 1 && txt(1) == '*' )
+				text( double(x1+x2)/2, double(y1), txt, 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
+			else
+				text( double(x1+x2)/2, double(y2), txt, 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
+			end
 
 		end
 
