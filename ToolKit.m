@@ -742,7 +742,7 @@ classdef ToolKit
 			end
 
 			y1 = y1 + y*hDist;
-			y2 = y1 + y * hAxis * .02;
+			y2 = y1 + y * hAxis * .01;
 
 			plot( [ x1, x1, x2, x2 ], [ y1, y2, y2, y1 ], 'k' );
 			
@@ -1059,20 +1059,21 @@ classdef ToolKit
 		end
 
 
-		function patch = Gabor( waveLength, orientation, pahse, width, window, sigma )
+		function patch = Gabor( waveLength, orientation, pahse, width, height, window, sigma )
 			%% orientation:		counterclockwise; vertical gabor at 0; degrees
 			%  pahse:			degrees
-			%  width:			width of the patch in pixels
+			%  width:			width of the patch in pixels (2nd dimension / x)
+			%  height:			height of the patch in pixels (1st dimension / y)
 			%  window:			'gaussian' (gabor) or not (grating)
 			%  sigma:			sigma of the Gaussian filter
 			%  patch:			1st dimension: vertical(y); 2nd dimension: horizontal(x)
-			if( nargin() < 5 )
+			if( nargin() < 6 )
 				window = 'grating';
-			elseif( nargin() < 6 )
+			elseif( nargin() < 7 )
 				sigma = 1;
 			end
 			
-			[ x, y ] = meshgrid( (1:width) - (1+width)/2.0, (1:width) - (1+width)/2.0 );
+			[ x, y ] = meshgrid( (1:width) - (1+width)/2.0, (1:height) - (1+height)/2.0 );
 			X = x.*cosd(orientation) + y.*sind(orientation);
 			Y = y.*cosd(orientation) - x.*sind(orientation);
 			frequency = 1/waveLength;
