@@ -1060,12 +1060,14 @@ classdef ToolKit
 
 
 		function patch = Gabor( waveLength, orientation, pahse, width, height, window, sigma )
-			%% orientation:		counterclockwise; vertical gabor at 0; degrees
+			%% patch = Gabor( waveLength, orientation, pahse, width, height, window, sigma )
+            %  waveLength:      length of each cycle in pixels
+            %  orientation:		counterclockwise; vertical gabor at 0; degrees
 			%  pahse:			degrees
 			%  width:			width of the patch in pixels (2nd dimension / x)
 			%  height:			height of the patch in pixels (1st dimension / y)
-			%  window:			'gaussian' (gabor) or not (grating)
-			%  sigma:			sigma of the Gaussian filter
+			%  window:			'gaussian' (gabor), 'circle' (a round patch) or 'grating' (grating)
+			%  sigma:			sigma of the Gaussian filter for 'gaussian' window, or of the Gaussian edge for 'circle' window (set to <=0 for a hard dented edge)
 			%  patch:			1st dimension: vertical(y); 2nd dimension: horizontal(x)
 			if( nargin() < 6 )
 				window = 'grating';
@@ -1077,10 +1079,20 @@ classdef ToolKit
 			X = x.*cosd(orientation) + y.*sind(orientation);
 			Y = y.*cosd(orientation) - x.*sind(orientation);
 			frequency = 1/waveLength;
-			if( strcmp( lower(window), 'gaussian' ) )
-				patch = cos( 2 * pi * frequency .* X + pahse/180*pi ) .* exp( -0.5 * (X.^2+Y.^2) / sigma^2 );
+			if( strcmpi( window, 'gaussian' ) )
+				patch = cos( 2 * pi * frequency .* X + pahse/180*pi ) .* exp( -0.5 * ((x/width*height).^2+y.^2) / sigma^2 );
 			else
 				patch = cos( 2 * pi * frequency .* X + pahse/180*pi );
+			end
+			if( strcmpi( window, 'circle' ) )
+				mask = ones(height, width);
+				if( sigma <= 0 )
+					mask( ((x/width).^2+(y/height).^2) > 1/4 ) = 0;
+				else
+					index = (x/width*height).^2 + y.^2 >= (height/2-2*sigma)^2;			% make an edge of 2*sigma in vertical and 2*sigma/height*width in horizontal
+					mask(index) = normpdf( sqrt( (x(index)/width*height).^2 + y(index).^2 ), height/2-2*sigma, sigma ) / normpdf(0,0,sigma);
+				end
+				patch = patch .* mask;
 			end
 			patch = patch / max(patch(:));
 		end
@@ -1113,6 +1125,62 @@ classdef ToolKit
 			if( isPlot )
 				if(isNewFigure) figure; end
 				imshow(img);
+			end
+		end
+
+
+		function img = NaturalNoise( width, height, window, sigma, isPlot, isNewFigure, filename, alpha )
+			%% img = NaturalNoise( width, height, window, sigma )
+			%  width:			width of the patch in pixels (2nd dimension / x)
+			%  height:			height of the patch in pixels (1st dimension / y)
+			%  window:			'gaussian' (gabor), 'circle' (a round patch) or 'grating' (grating)
+			%  sigma:			sigma of the Gaussian filter for 'gaussian' window, or of the Gaussian edge for 'circle' window (set to <=0 for a hard dented edge)
+			%  img:				1st dimension: vertical(y); 2nd dimension: horizontal(x)
+			%  isPlot:			whether show the image, false by default
+			%  isNewFigure:		whether create new figure, false by default
+			%  filename:		if provided, then save the image as a png picture
+			%  alpha:			transparency of the image
+
+			if( nargin() < 3 || isempty(window) ) window = 'other'; end
+			if( nargin() < 4 || isempty(sigma) || isnan(sigma) ) sigma = 1; end
+			if( nargin() < 5 || isempty(isPlot) || isnan(isPlot) ) isPlot = false; end
+			if( nargin() < 6 || isempty(isNewFigure) || isnan(isNewFigure) ) isNewFigure = false; end
+			if( nargin() < 7 || isempty(filename) ) filename = []; end
+			if( nargin() < 8 ) alpha = 1; end
+
+			rng('shuffle');
+
+			img = fftshift( fft2( rand(height, width) ) );
+			img = img ./ abs(img);
+			[X Y] = meshgrid( [ floor(width/2) : -1 : 1, 1, 1 : width-floor(width/2)-1 ], [ floor(height/2) : -1 : 1, 1, 1 : height-floor(height/2)-1 ] );
+			img = real( ifft2( ifftshift( img ./ sqrt( X.^2 + Y.^2 ) ) ) );
+			img = img ./ sqrt( sum( img(:).^2 ) );
+
+			[ x, y ] = meshgrid( (1:width) - (1+width)/2.0, (1:height) - (1+height)/2.0 );
+			switch(lower(window))
+				case 'gaussian'
+					mask = exp( -0.5 * ((x/width*height).^2+y.^2) / sigma^2 );
+					img = img .* mask;
+				case 'circle'
+					mask = ones(height, width);
+					if( sigma <= 0 )
+						mask( ((x/width).^2+(y/height).^2) > 1/4 ) = 0;
+					else
+						index = (x/width*height).^2 + y.^2 >= (height/2-2*sigma)^2;			% make an edge of 2*sigma in vertical and 2*sigma/height*width in horizontal
+						mask(index) = normpdf( sqrt( (x(index)/width*height).^2 + y(index).^2 ), height/2-2*sigma, sigma ) / normpdf(0,0,sigma);
+					end
+					img = img .* mask;
+				otherwise
+					mask = ones(height, width);
+			end
+
+			if( isPlot )
+				if( isNewFigure ) figure; end
+				imshow( img, [] );
+			end
+
+			if( ~isempty(filename) )
+				imwrite( repmat( img/max(abs(img(:))) / 2 + 0.5, 1, 1, 3 ), filename, 'png', 'alpha', mask*alpha );
 			end
 		end
 		
