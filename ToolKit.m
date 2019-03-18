@@ -1086,7 +1086,7 @@ classdef ToolKit
 		end
 
 
-		function img = Arcs( innerR, outerR, breakWidth, isPlot, isNewFigure )
+		function img = Arcs( innerR, outerR, breakWidth, isPlot, isNewFigure, isSave, fileName )
 			%% output:
 			%	 img:				normalized to 1
 			%  input:
@@ -1095,8 +1095,14 @@ classdef ToolKit
 			%    breakWidth:		angle of breaks between arcs (degrees)
 			%    isPlot:			whether plot img; false by default
 			%    isNewFigure:		whether plot on a new figure; true by default
-			if( nargin() < 4 ) isPlot = false; end
-			if( nargin() < 5 ) isNewFigure = true; end
+			if( nargin() < 4 || isempty(isPlot) ) isPlot = false; end
+			if( nargin() < 5 || isempty(isNewFigure) ) isNewFigure = true; end
+			if( nargin() < 6 || isempty(isSave) ) isSave = false; end
+			if( nargin() < 7 || isempty(fileName) )
+				[y,m,d] = ymd(datetime('today'));
+				[H,M,S] = hms(datetime('now', 'format', 'HH:mm:ss.SSS'));
+				fileName = sprintf( 'Arc_%d%02d%02d_%02d%02d%02.3f%', y, m, d, H, M, S );
+			end
 
 			img = zeros( outerR*2+1, outerR*2+1 );
 			angBound = [breakWidth/2, 90-breakWidth/2]' + (-2:1)*90
@@ -1113,6 +1119,10 @@ classdef ToolKit
 			if( isPlot )
 				if(isNewFigure) figure; end
 				imshow(img);
+			end
+
+			if( isSave )
+				imwrite( img, [fileName, '.png'], 'Alpha', img.^2 );
 			end
 		end
 		
