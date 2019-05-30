@@ -1139,7 +1139,7 @@ classdef ToolKit
 		end
 
 
-		function img = NaturalNoise( width, height, window, sigma, isPlot, isNewFigure, filename, alpha )
+		function [img, mask] = NaturalNoise( width, height, window, sigma, isPlot, isNewFigure, filename, alpha )
 			%% img = NaturalNoise( width, height, window, sigma )
 			%  width:			width of the patch in pixels (2nd dimension / x)
 			%  height:			height of the patch in pixels (1st dimension / y)
