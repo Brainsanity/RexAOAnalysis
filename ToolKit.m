@@ -612,19 +612,32 @@ classdef ToolKit
 			%% return the full path of all subfolders in folder
 
 			folder = ToolKit.RMEndSpaces(folder);
-			if( folder(end) ~= '/' && folder(end) ~= '\' ), folder(end+1) = '/'; end
-			folderNames = ls( folder );
-			n = size(folderNames,1);
-			index = zeros( 1, n );
-			count = 0;
-			for( i = 3 : n )
-				if( exist( [ folder, ToolKit.RMEndSpaces( folderNames(i,:) ) ], 'dir' ) == 7 )
-					index(count+1) = i;
-					count = count + 1;
+			subfolders = dir(folder);
+			n = size(subfolders,1);
+			index = false( 1, n );
+			for( k = 1 : n )
+				if( ~strcmp( subfolders(k).name, '.' ) && ~strcmp( subfolders(k).name, '..' ) && subfolders(k).isdir() )
+					index(k) = true;
+					subfolders(k).name = fullfile( subfolders(k).folder, subfolders(k).name );
 				end
 			end
-			folderNames = folderNames( index(1:count), : );
-			folderNames = [ repmat( folder, size(folderNames,1), 1 ), folderNames ];
+			folderNames = { subfolders(index).name };
+			return;
+
+			
+			% if( folder(end) ~= '/' && folder(end) ~= '\' ), folder(end+1) = '/'; end
+			% folderNames = ls( folder );
+			% n = size(folderNames,1);
+			% index = zeros( 1, n );
+			% count = 0;
+			% for( i = 3 : n )
+			% 	if( exist( [ folder, ToolKit.RMEndSpaces( folderNames(i,:) ) ], 'dir' ) == 7 )
+			% 		index(count+1) = i;
+			% 		count = count + 1;
+			% 	end
+			% end
+			% folderNames = folderNames( index(1:count), : );
+			% folderNames = [ repmat( folder, size(folderNames,1), 1 ), folderNames ];
 		end
 
 		function str = RMEndSpaces(str)
@@ -1059,7 +1072,7 @@ classdef ToolKit
 		end
 
 
-		function patch = Gabor( waveLength, orientation, pahse, width, height, window, sigma )
+		function [patch, mask] = Gabor( waveLength, orientation, pahse, width, height, window, sigma )
 			%% patch = Gabor( waveLength, orientation, pahse, width, height, window, sigma )
             %  waveLength:      length of each cycle in pixels
             %  orientation:		counterclockwise; vertical gabor at 0; degrees
