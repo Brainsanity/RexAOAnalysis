@@ -1106,6 +1106,8 @@ classdef ToolKit
 					mask(index) = normpdf( sqrt( (x(index)/width*height).^2 + y(index).^2 ), height/2-2*sigma, sigma ) / normpdf(0,0,sigma);
 				end
 				patch = patch .* mask;
+            else
+                mask = [];
 			end
 			patch = patch / max(patch(:));
 		end
