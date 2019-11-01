@@ -1208,6 +1208,12 @@ classdef ToolKit
 				imwrite( repmat( img/max(abs(img(:))) / 2 + 0.5, 1, 1, 3 ), filename, 'png', 'alpha', mask*alpha );
 			end
 		end
+
+
+		function [nRows, nCols] = OptimalSubplots(nPlots)
+			nCols = ceil(sqrt(nPlots));
+			nRows = ceil( nPlots / nCols );
+		end
 		
 
 		function BulletComments( fname, bgColor )
