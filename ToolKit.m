@@ -1109,7 +1109,7 @@ classdef ToolKit
             else
                 mask = [];
 			end
-			patch = patch / max(patch(:));
+			% patch = patch / max(abs(patch(:)));		% remove this normalization so that its power does not vary with phase
 		end
 
 
@@ -1154,33 +1154,44 @@ classdef ToolKit
 		end
 
 
-		function [img, mask] = NaturalNoise( width, height, window, sigma, isPlot, isNewFigure, filename, alpha )
-			%% img = NaturalNoise( width, height, window, sigma )
+		function [img, mask] = NoisePatch( width, height, noise, band, window, sigma, isPlot, isNewFigure, filename, alpha )
+			%% img = NoisePatch( width, height, window, sigma )
 			%  width:			width of the patch in pixels (2nd dimension / x)
 			%  height:			height of the patch in pixels (1st dimension / y)
-			%  window:			'gaussian' (gabor), 'circle' (a round patch) or 'grating' (grating)
+			%  noise:			type of noise: white; natural(1/f)
+			%  band:			2-element array indicating the spatial frequency band; [0 Inf] by default. (cycles/pixel)
+			%  window:			'gaussian' (gabor), 'circle' (a round patch) or 'square' (square)
 			%  sigma:			sigma of the Gaussian filter for 'gaussian' window, or of the Gaussian edge for 'circle' window (set to <=0 for a hard dented edge)
-			%  img:				1st dimension: vertical(y); 2nd dimension: horizontal(x)
 			%  isPlot:			whether show the image, false by default
 			%  isNewFigure:		whether create new figure, false by default
 			%  filename:		if provided, then save the image as a png picture
 			%  alpha:			transparency of the image
 
-			if( nargin() < 3 || isempty(window) ) window = 'other'; end
-			if( nargin() < 4 || isempty(sigma) || isnan(sigma) ) sigma = 1; end
-			if( nargin() < 5 || isempty(isPlot) || isnan(isPlot) ) isPlot = false; end
-			if( nargin() < 6 || isempty(isNewFigure) || isnan(isNewFigure) ) isNewFigure = false; end
-			if( nargin() < 7 || isempty(filename) ) filename = []; end
-			if( nargin() < 8 ) alpha = 1; end
+			%  img:				1st dimension: vertical(y); 2nd dimension: horizontal(x)
+
+			if( nargin() < 3 || isempty(noise) ) noise = 'white'; end
+			if( nargin() < 4 || isempty(band) ) band = [0 Inf]; end
+			if( nargin() < 5 || isempty(window) ) window = 'other'; end
+			if( nargin() < 6 || isempty(sigma) || isnan(sigma) ) sigma = 1; end
+			if( nargin() < 7 || isempty(isPlot) || isnan(isPlot) ) isPlot = false; end
+			if( nargin() < 8 || isempty(isNewFigure) || isnan(isNewFigure) ) isNewFigure = false; end
+			if( nargin() < 9 || isempty(filename) ) filename = []; end
+			if( nargin() < 10 ) alpha = 1; end
 
 			rng('shuffle');
 
 			img = fftshift( fft2( rand(height, width) ) );
 			img = img ./ abs(img);
-			[X Y] = meshgrid( [ floor(width/2) : -1 : 1, 1, 1 : width-floor(width/2)-1 ], [ floor(height/2) : -1 : 1, 1, 1 : height-floor(height/2)-1 ] );
-			img = real( ifft2( ifftshift( img ./ sqrt( X.^2 + Y.^2 ) ) ) );
-			img = img ./ sqrt( sum( img(:).^2 ) );
-
+			[X Y] = meshgrid( [ -floor(width/2) : -1, 0.0000001, 1 : width-floor(width/2)-1 ] / width, [ -floor(height/2) : -1, 0.0000001, 1 : height-floor(height/2)-1 ] / height );	% cycles/pixel
+			bandMask = X.^2 + Y.^2;
+			bandMask = band(1)^2 <= bandMask & bandMask <= band(2)^2;
+			if( strcmpi( noise, 'natural' ) )
+				img = real( ifft2( ifftshift( img ./ sqrt( X.^2 + Y.^2 ) .* bandMask ) ) );
+			else
+				img = real( ifft2( ifftshift( img .* bandMask ) ) );
+			end
+			img = img - mean(img(:));
+			
 			[ x, y ] = meshgrid( (1:width) - (1+width)/2.0, (1:height) - (1+height)/2.0 );
 			switch(lower(window))
 				case 'gaussian'
@@ -1193,11 +1204,14 @@ classdef ToolKit
 					else
 						index = (x/width*height).^2 + y.^2 >= (height/2-2*sigma)^2;			% make an edge of 2*sigma in vertical and 2*sigma/height*width in horizontal
 						mask(index) = normpdf( sqrt( (x(index)/width*height).^2 + y(index).^2 ), height/2-2*sigma, sigma ) / normpdf(0,0,sigma);
+						% mask( mask < 0.01 ) = 0;
 					end
 					img = img .* mask;
 				otherwise
 					mask = ones(height, width);
 			end
+
+			img = ( img - mean( reshape( img, 1, [] ) ) ) / std( reshape( img, 1, [] ), 1 ); % sqrt( sum( img(:).^2 ) / (height*width) );	% compute the average power
 
 			if( isPlot )
 				if( isNewFigure ) figure; end
