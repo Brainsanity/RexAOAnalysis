@@ -716,7 +716,7 @@ classdef ToolKit
 			end
 		end
 
-		function ShowSignificance( loc1, loc2, pVal, hDist, isShowValues, varargin )
+		function [hLine, hText] = ShowSignificance( loc1, loc2, pVal, hDist, isShowValues, varargin )
 			%% ToolKit.ShowSignificance( point1, point2, pVal, hDist, isShowValues )
 			%		loc1:	location of the top of the first data set
 			%		loc2:	location of the top of the second data set
@@ -757,7 +757,7 @@ classdef ToolKit
 			y1 = y1 + y*hDist;
 			y2 = y1 + y * hAxis * .01;
 
-			plot( [ x1, x1, x2, x2 ], [ y1, y2, y2, y1 ], 'k' );
+			hLine = plot( [ x1, x1, x2, x2 ], [ y1, y2, y2, y1 ], 'k' );
 			
 			if( isShowValues )
 				txt = sprintf( '%.4f', pVal );
@@ -773,9 +773,9 @@ classdef ToolKit
 				end
 			end
 			if( y == 1 && txt(1) == '*' )
-				text( double(x1+x2)/2, double(y1), txt, 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
+				hText = text( double(x1+x2)/2, double(y1), txt, 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
 			else
-				text( double(x1+x2)/2, double(y2), txt, 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
+				hText = text( double(x1+x2)/2, double(y2), txt, 'HorizontalAlignment', 'center', 'VerticalAlignment', vAlign, varargin{:} );
 			end
 
 		end
