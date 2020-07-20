@@ -225,6 +225,20 @@ classdef SaccadeTool < handle
 			convStep = ceil( max( 0.005 * samRate, 1 ) );
 			convFunctor = ones(1,convStep)./convStep;
 			for i = 1 : 5
+				%% this "overdone" averaging is equivalent to using a Gaussian functor
+				% General model Gauss1:
+				% 	f(x) =  a*exp(-((x-b)/c)^2)
+				% 	Coefficients (with 95% confidence bounds):
+				% 		a =     0.123  (0.1226, 0.1235)	( \sigma	= 3.25  )
+				% 		b =         50  (49.99, 50.01)	( \mu		= 50 )
+				% 		c =        4.624  (4.606, 4.643)
+				%
+				% 	Goodness of fit:
+				% 		SSE: 1.7876e-05
+				% 		R-square: 0.9998
+				% 		Adjusted R-square: 0.9998
+				% 		RMSE: 4.2929e-04
+
 				velocity(1,:) = conv( velocity(1,:), convFunctor, 'same' ); % 'same' to get the central part
 				velocity(2,:) = conv( velocity(2,:), convFunctor, 'same' ); % 'same' to get the central part
 			end
