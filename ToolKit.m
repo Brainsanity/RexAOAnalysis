@@ -1228,6 +1228,104 @@ classdef ToolKit
 			nCols = ceil(sqrt(nPlots));
 			nRows = ceil( nPlots / nCols );
 		end
+
+
+		function TakePointsFromFigure(filename)
+			img = imread(filename);
+			hFig = figure( 'NumberTitle', 'off', 'name', ['Take Points From Figure | ' filename], 'color', 'w' );
+			imshow(img); hold on;
+			hPoint = plot( 0, 0, 'ro', 'LineWidth', 2, 'visible', 'off' );
+			varName = 'name';
+			values = [];
+
+			set( hFig, 'KeyPressFcn', @KeyPressFcn, ...
+					   'WindowButtonDownFcn', @WindowButtonDownFcn, ...
+					   'WindowButtonUpFcn', @WindowButtonUpFcn, ...
+					   'WindowButtonMotionFcn', @WindowButtonMotionFcn );
+
+			function KeyPressFcn( hFig, evnt )
+				% evnt.Key
+				% evnt.Character
+				switch evnt.Key
+					case 'leftarrow'
+						;
+					
+					case 'downarrow'
+						;
+					
+					case { 'hyphen', 'subtract' }
+						;
+					
+					case 'rightarrow'
+						;
+					
+					case 'uparrow'
+						;
+					
+					case { 'equal', 'add' }
+						;
+
+					case '1'
+						evnt.Character
+
+					case 'n'	% start new take
+						varName = input('varName: ','s');
+						values = [];
+						hPoint.Visible = 'on';
+
+					case 'c'	% color
+						try
+							eval( sprintf('\nhPoint.Color = %s;', input('Color: ', 's')) );
+						catch e
+							disp(e);
+						end
+
+					case 's'	% size
+						s = sscanf( input( sprintf('\nCurrent MarkerSize = %.1f\nNew MarkerSize: ', hPoint.MarkerSize), 's' ), '%f' );
+						if(~isempty(s))
+							hPoint.MarkerSize = s;
+						end
+
+					case 'w'	% line width
+						w = sscanf( input( sprintf('\nCurrent LineWidth = %.1f\nNew LineWidth: ', hPoint.LineWidth), 's' ), '%f' );
+						if(~isempty(w))
+							hPoint.LineWidth = w;
+						end
+
+					case 'm'	% marker
+						try
+							eval( sprintf('\nhPoint.Marker = %s;', input('Marker: ', 's')) );
+						catch e
+							disp(e);
+						end
+
+					case 'return'	% end current take, store results into base working space
+						hPoint.Visible = 'off';
+						assignin('caller', varName, values);
+				end
+			end
+
+			function WindowButtonDownFcn(hFig, evnt)
+				if( strcmp( get( gcf, 'SelectionType' ), 'normal' ) )	% left button
+					point = get( gca, 'CurrentPoint' );
+					values = [values; point(1,1:2)];
+					hPoint.LineWidth = hPoint.LineWidth*4;
+				end
+			end
+
+			function WindowButtonUpFcn(hFig, evnt)
+				if( strcmp( get( gcf, 'SelectionType' ), 'normal' ) )	% left button
+					hPoint.LineWidth = hPoint.LineWidth/4;
+				end
+			end
+
+			function WindowButtonMotionFcn(hFig, evnt)
+				if( strcmp( get( gcf, 'SelectionType' ), 'normal' ) )	% left button
+					point = get( gca, 'CurrentPoint' );
+					set( hPoint, 'XData', point(1,1), 'YData', point(1,2) );
+				end
+			end
+		end
 		
 
 		function BulletComments( fname, bgColor )
