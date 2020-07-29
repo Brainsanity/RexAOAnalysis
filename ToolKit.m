@@ -1233,7 +1233,8 @@ classdef ToolKit
 		function TakePointsFromFigure(filename)
 			img = imread(filename);
 			hFig = figure( 'NumberTitle', 'off', 'name', ['Take Points From Figure | ' filename], 'color', 'w' );
-			imshow(img); hold on;
+			imshow(img(end:-1:1,:,:)); hold on;
+			set( gca, 'ydir', 'normal' );
 			hPoint = plot( 0, 0, 'ro', 'LineWidth', 2, 'visible', 'off' );
 			varName = 'name';
 			values = [];
