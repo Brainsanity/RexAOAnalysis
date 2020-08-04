@@ -1086,13 +1086,16 @@ classdef ToolKit
 				window = 'grating';
 			elseif( nargin() < 7 )
 				sigma = 1;
-			end
-			
+            end
+            
+            mask = [];
+            
 			[ x, y ] = meshgrid( (1:width) - (1+width)/2.0, (1:height) - (1+height)/2.0 );
 			X = x.*cosd(orientation) + y.*sind(orientation);
 			Y = y.*cosd(orientation) - x.*sind(orientation);
 			frequency = 1/waveLength;
 			if( strcmpi( window, 'gaussian' ) )
+                mask = exp( -0.5 * ((x/width*height).^2+y.^2) / sigma^2 );
 				patch = cos( 2 * pi * frequency .* X + pahse/180*pi ) .* exp( -0.5 * ((x/width*height).^2+y.^2) / sigma^2 );
 			else
 				patch = cos( 2 * pi * frequency .* X + pahse/180*pi );
@@ -1106,8 +1109,6 @@ classdef ToolKit
 					mask(index) = normpdf( sqrt( (x(index)/width*height).^2 + y(index).^2 ), height/2-2*sigma, sigma ) / normpdf(0,0,sigma);
 				end
 				patch = patch .* mask;
-            else
-                mask = [];
 			end
 			% patch = patch / max(abs(patch(:)));		% remove this normalization so that its power does not vary with phase
 		end
