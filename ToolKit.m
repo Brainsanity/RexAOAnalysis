@@ -1105,8 +1105,8 @@ classdef ToolKit
 				if( sigma <= 0 )
 					mask( ((x/width).^2+(y/height).^2) > 1/4 ) = 0;
 				else
-					index = (x/width*height).^2 + y.^2 >= (height/2-2*sigma)^2;			% make an edge of 2*sigma in vertical and 2*sigma/height*width in horizontal
-					mask(index) = normpdf( sqrt( (x(index)/width*height).^2 + y(index).^2 ), height/2-2*sigma, sigma ) / normpdf(0,0,sigma);
+					index = (x/width*height).^2 + y.^2 >= (height/2-4*sigma)^2;			% make an edge of 2*sigma in vertical and 2*sigma/height*width in horizontal
+					mask(index) = normpdf( sqrt( (x(index)/width*height).^2 + y(index).^2 ), height/2-4*sigma, sigma ) / normpdf(0,0,sigma);
 				end
 				patch = patch .* mask;
 			end
